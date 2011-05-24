@@ -10,5 +10,5 @@ foreach ($pages as $page) {
 	));
 }
 
-echo $sitemap->generate(array('format' => 'html'));
+echo $sitemap->generate('html');
 ?>
