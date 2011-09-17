@@ -1,7 +1,6 @@
 <?php
 
 class AnalyticsHelper extends AppHelper {
-
 	const CUSTOM_VAR_MAX_LENGTH = 64;
 	const CUSTOM_VAR_MAX_INDEX = 5;
 
@@ -9,12 +8,16 @@ class AnalyticsHelper extends AppHelper {
 	const OPT_SCOPE_SESSION = 2;
 	const OPT_SCOPE_PAGE = 3;
 
+	protected $_View;
+
 	protected $_commmands = array();
 
 	// If null will use google hosted script.
 	protected $_script;
 
-	public function __construct($settings = array()) {
+	public function __construct(View $View, $settings = array()) {
+		$this->_View = $View;
+
 		foreach ((array) $settings as $key => $value) {
 			if (property_exists($this, $property = "_{$key}")) {
 				$this->{$property} = $value;
@@ -22,6 +25,8 @@ class AnalyticsHelper extends AppHelper {
 				call_user_func(array($this, $key), $value);
 			}
 		}
+
+		parent::__construct($View, (array) $settings);
 	}
 
 	public function config($settings) {

@@ -22,7 +22,7 @@
  * @package    webmaster_tools
  * @subpackage webmaster_tools.controllers.components
  */
-class MaintenanceComponent extends Object {
+class MaintenanceComponent extends Component {
 
 	private $__Controller;
 
