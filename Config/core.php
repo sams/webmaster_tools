@@ -23,5 +23,14 @@ Configure::write('WebmasterTools.googleAnalytics', array(
 	'allowLinker' => null,
 	'allowHash' => null
 ));
-
-?>
+Configure::write('WebmasterToolsError', array(
+        'handler' => 'WebmasterToolsAppErrorHandler::handleError',
+        'level' => E_ALL & ~E_DEPRECATED,
+        'trace' => true,
+        'log' => true
+));
+Configure::write('WebmasterToolsException', array(
+        'handler' => 'WebmasterToolsAppErrorHandler::handleException',
+        'renderer' => 'WebmasterTools.AppExceptionRenderer',
+        'log' => true
+));
