@@ -23,8 +23,9 @@ App::uses('WebmasterToolsErrorHandler', 'WebmasterTools.Lib');
 Configure::write('WebmasterTools.Maintenance', array(
 	'active' => false,
 	'message' => 'This is currently in maintenace mode',
-	'title' => 'undergoing maintenace',
-	'revisit' => null
+	'title' => 'Undergoing Maintenance',
+	'revisit' => HOUR,
+	'layout' => 'error'
 ));
 
 Configure::write('WebmasterTools.googleAnalytics', array(
