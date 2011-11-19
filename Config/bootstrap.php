@@ -16,6 +16,17 @@
  * @license    http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 
+require CakePlugin::path('WebmasterTools') . 'Lib/Error' . DS . 'exceptions.php';
+App::uses('WebmasterToolsExceptionHandler', 'WebmasterTools.Lib');
+App::uses('WebmasterToolsErrorHandler', 'WebmasterTools.Lib');
+
+Configure::write('WebmasterTools.Maintenance', array(
+	'active' => false,
+	'message' => 'This is currently in maintenace mode',
+	'title' => 'undergoing maintenace',
+	'revisit' => null
+));
+
 Configure::write('WebmasterTools.googleAnalytics', array(
 	'enable' => true,
 	'account' => null,
