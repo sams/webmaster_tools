@@ -26,8 +26,6 @@ class WebmasterToolsController extends WebmasterToolsAppController {
 
 	public $uses = array();
 
-	public $components = array('RequestHandler');
-
 	public function beforeFilter() {
 		parent::beforeFilter();
 
@@ -36,24 +34,55 @@ class WebmasterToolsController extends WebmasterToolsAppController {
 		} elseif (isset($this->Gate)) {
 			$this->Gate->Auth->allow('sitemap', 'robot_control');
 		}
+
+		if (!empty($this->request->params['ext'])) {
+				$this->response->type($this->request->params['ext']);
+		}
 	}
 
     public function sitemap(){
-		$this->helpers[] = 'WebmasterTools.Sitemap';
+		
+		//debug($this->response);
+		//diebug($this->request->params['ext']);
+		$mapData = $mapModels = array();
+		$mapModels = Configure::read('WebmasterTools.mapModels');
+		
+		$controller = false;
+		
+		foreach($mapModels as $model => $params) {
+			$controller = Inflector::pluralize($model);
+			//debug($model);
+			//debug($controller);
+			//debug($params);
 
-        if ($this->RequestHandler->prefers('xml')) {
- 			$this->RequestHandler->respondAs('xml');
-        }
-
-		$Page = ClassRegistry::init('Page');
-		$pages = $Page->find('all');
-		$this->set(compact('pages'));
+			if($controller == $model) {
+				$model = Inflector::singularize($model);
+				// static route controller eg Pages
+				foreach($params[1] as $item => $data) {
+					$mapData[$controller][$item][$model] = array($data);
+				}	
+				$mapData[$controller][':type'] = 'static';
+				$mapData[$controller][':route'] = array_merge(array('controller' => $controller), $params[0]);
+			} else {
+				$method = $params[1][':method'];
+				$type = $params[1][':type'];
+				$args = $params[1][':args'];
+				// a model using find
+				$this->loadModel($model);
+				$$model = new $model;
+				$mapData[$controller] = $$model->$method($type, $args);
+				$mapData[$controller][':type'] = 'dynamic';
+				$mapData[$controller][':route'] = array_merge(array('controller' => $controller), $params[0]);		
+			}
+			
+		}
+		
+		#diebug($mapData);
+		
+		$this->set(compact('mapData'));
 	}
 
     public function robot_control() {
-		$this->helpers[] = 'WebmasterTools.RobotControl';
-
-		$this->RequestHandler->respondAs('txt');
 		$this->render('txt/robot_control');
     }
 

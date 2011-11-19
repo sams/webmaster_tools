@@ -2,13 +2,31 @@
 <?php
 $this->set('title_for_layout', 'Sitemap');
 
-foreach ($pages as $page) {
-	$url = array('controller' => 'pages', 'action' => 'view', 'slug' => $page['Page']['slug']);
-	$this->Sitemap->add($url , array(
-		'section' => 'Pages',
-		'title' => $page['Page']['title']
-	));
-}
+$this->loadHelper('WebmasterTools.Sitemap');
 
+$this->set('title_for_layout', 'Sitemap');
+	foreach ($mapData as $entity => $data) {
+		$i = 0;
+		$url = $data[':route']; unset($data[':route']);
+		$type = $data[':type']; unset($data[':type']);
+		//$url = array($page['Page']['slug']);
+		for($i; $i < count($data); $i++) {
+			if($type == 'static') {
+				$title = Inflector::humanize($url[0]);
+				$url = array_merge($url, $data);
+			} else {
+				// this should be the displayField
+				$title = $data['title'];
+				$type = $url[0]; unset($url[0]);
+				$url = array_merge($url, $data[$type]);
+			}
+			debug($url);
+			//debug($data[$i]);
+		//debug($data);
+		//$this->Sitemap->add($url , array(
+		//	'section' => $entity,
+		//	'title' => $title
+		//));
+		}
+	}
 echo $this->Sitemap->generate('html');
-?>

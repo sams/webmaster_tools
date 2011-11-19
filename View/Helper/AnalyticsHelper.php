@@ -14,8 +14,8 @@ class AnalyticsHelper extends AppHelper {
 	// If null will use google hosted script.
 	protected $_script;
 
-	public function __construct($settings = array()) {
-		foreach ($settings as $key => $value) {
+	public function __construct(View $View, $options = array()) {
+		foreach ($options as $key => $value) {
 			if (property_exists($this, $property = "_{$key}")) {
 				$this->{$property} = $value;
 			} else {

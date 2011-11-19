@@ -26,7 +26,7 @@ class MaintenanceComponent extends Component {
 
 	private $__Controller;
 
-	public function initialize($Controller) {
+	public function initialize(Controller $Controller) {
 		$this->__Controller = $Controller;
 	}
 
@@ -47,7 +47,7 @@ class MaintenanceComponent extends Component {
 	 * @link http://mark-story.com/posts/view/quick-and-dirty-down-for-maintenance-page-with-cakephp
 	 */
 	public function activate($message = null) {
-		Configure::write('debug', 0);
+		Configure::write('debug', 2);
 
 		$this->__Controller->header('HTTP/1.1 503 Service Temporarily Unavailable');
 		$this->__Controller->header('Retry-After: ' . HOUR);
