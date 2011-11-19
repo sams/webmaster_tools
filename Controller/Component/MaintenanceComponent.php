@@ -17,19 +17,42 @@
  */
 
 /**
+ * Parent class for all of the HTTP related exceptions in CakePHP.
+ * All HTTP status/error related exceptions should extend this class so
+ * catch blocks can be specifically typed.
+ *
+ * @package       Cake.Error
+ */
+if (!class_exists('HttpException')) {
+	class HttpException extends RuntimeException { }
+}
+
+/**
+ * Represents an HTTP 503 error.
+ *
+ * @package       WebmasterTool.Lib.Error
+ */
+class MaintenanceException extends HttpException {
+/**
+ * Constructor
+ *
+ * @param string $message If no message is given 'Bad Request' will be the message
+ * @param string $code Status code, defaults to 400
+ */
+	public function __construct($message = null, $code = 503) {
+		if (empty($message)) {
+			$message = 'Down for Maintenance';
+		}
+		parent::__construct($message, $code);
+	}
+}
+/**
  * Maintenance Component Class
  *
  * @package    webmaster_tools
  * @subpackage webmaster_tools.controllers.components
  */
 class MaintenanceComponent extends Component {
-
-	private $__Controller;
-
-	public function initialize(Controller $Controller) {
-		$this->__Controller = $Controller;
-	}
-
 	/**
 	 * Activates maintenance mode.
 	 *
@@ -49,16 +72,7 @@ class MaintenanceComponent extends Component {
 	public function activate($message = null) {
 		Configure::write('debug', 2);
 
-		$this->__Controller->header('HTTP/1.1 503 Service Temporarily Unavailable');
-		$this->__Controller->header('Retry-After: ' . HOUR);
-
-		$this->cakeError('maintenance', array(
-			'code' => 503,
-			'base' => $this->__Controller->base,
-			'url' => $this->__Controller->here,
-			'message' => $message ? $message : __("We're currently working on the site."),
-			'name' => __('Maintenance')
-		));
+		throw new MaintenanceException('Down for some Mainentance');
 	}
 }
 
