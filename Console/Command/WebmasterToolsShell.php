@@ -30,7 +30,7 @@ class WebmasterToolsShell extends Shell {
 		$this->out('[S]ubmit sitemap');
 		$this->out('[Q]uit');
 
-		$action = strtoupper($this->in(__('What would you like to do?', true), array('s','q'),'q'));
+		$action = strtoupper($this->in(__('What would you like to do?'), array('s','q'),'q'));
 		switch($action) {
 			case 'S':
 				$this->SubmitSitemap->execute();

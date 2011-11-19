@@ -50,11 +50,11 @@ if (empty($account)) {
 <?php if ($enable): ?>
 <!-- Google Analytics tracker -->
 <?php
-	$analytics->config(array_filter(compact(
+	$this->Analytics->config(array_filter(compact(
 		'account', 'domainName', 'allowLinker', 'allowHash'
 	)));
-	$analytics->trackPageview($url);
-	echo $analytics->generate();
+	$this->Analytics->trackPageview($url);
+	echo $this->Analytics->generate();
 ?>
 <?php else: ?>
 <!-- Google Analytics tracker omitted (not enabled) -->

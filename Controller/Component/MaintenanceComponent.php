@@ -22,7 +22,7 @@
  * @package    webmaster_tools
  * @subpackage webmaster_tools.controllers.components
  */
-class MaintenanceComponent extends Object {
+class MaintenanceComponent extends Component {
 
 	private $__Controller;
 
@@ -56,8 +56,8 @@ class MaintenanceComponent extends Object {
 			'code' => 503,
 			'base' => $this->__Controller->base,
 			'url' => $this->__Controller->here,
-			'message' => $message ? $message : __("We're currently working on the site.", true),
-			'name' => __('Maintenance', true)
+			'message' => $message ? $message : __("We're currently working on the site."),
+			'name' => __('Maintenance')
 		));
 	}
 }
