@@ -22,6 +22,7 @@
  * @package    webmaster_tools
  * @subpackage webmaster_tools.controllers
  */
+App::uses('AppController', 'Controller');
 class WebmasterToolsAppController extends AppController {
 }
 

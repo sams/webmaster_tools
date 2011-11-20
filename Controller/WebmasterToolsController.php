@@ -22,6 +22,7 @@
  * @package    webmaster_tools
  * @subpackage webmaster_tools.controllers
  */
+App::uses('WebmasterToolsAppController', 'WebmasterTools.Controller');
 class WebmasterToolsController extends WebmasterToolsAppController {
 
 	public $uses = array();
