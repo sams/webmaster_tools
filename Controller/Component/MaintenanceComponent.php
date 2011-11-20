@@ -37,7 +37,7 @@ class MaintenanceComponent extends Component {
 	 * @return void
 	 */
 	public function activate($message = null) {
-		Configure::write('debug', 0);
+		Configure::write('debug', 2);
 		throw new MaintenanceException($message);
 	}
 }

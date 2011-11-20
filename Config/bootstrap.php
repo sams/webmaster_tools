@@ -25,7 +25,7 @@ Configure::write('WebmasterTools.Maintenance', array(
 	'message' => 'This is currently in maintenace mode',
 	'title' => 'Undergoing Maintenance',
 	'revisit' => HOUR,
-	'layout' => 'error'
+	'layout' => 'ajax'
 ));
 
 Configure::write('WebmasterTools.googleAnalytics', array(
