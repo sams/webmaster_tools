@@ -31,6 +31,8 @@ class SitemapHelper extends AppHelper {
 
 	protected $_data = array();
 
+	protected $_text = array();
+
 	protected $_maxUrls = 50000;
 
 	protected $_maxSize = 10485760;
@@ -42,9 +44,14 @@ class SitemapHelper extends AppHelper {
 			'priority' => null, // 0.0 - 1.0 (most important), 0.5 is considered the default.
 			'title' => null, // For XML used as comment, otherwise for HTML.
 			'section' => null, // Used for HTML only.
+			'description' => null, // Used for HTML only.
 			'images' => array()
 		);
 		$this->_data[] = compact('url') + $options + $defaults;
+	}
+
+	public function addSection($sectionName, $sectionData) {
+		$this->_text[$sectionName] = $sectionData;
 	}
 
 	public function generate($format = 'xml', array $options = array()) {
@@ -80,10 +87,29 @@ class SitemapHelper extends AppHelper {
 		foreach ($this->_data as $item) {
 			$sections[$item['section']][] = $item;
 		}
-		ksort($sections);
 
+		//debug($this->_data);
+		//debug($this->_text);
+		ksort($sections);
+		
+		//debug($this->_text);
+		
 		foreach ($sections as $section => $items) {
-			$html .= $this->Html->tag('h2', $section);
+			$titleTag = 'h2'; $description = false;
+			$sectionTxt = $section;
+			if(!empty($this->_text[$section])) {
+				$sectionTxt = $this->_text[$section]['section'];
+				if(is_array($sectionTxt)) {
+					$titleTag = $sectionTxt[0];
+					$sectionTxt = $sectionTxt[1];	
+				} else {
+					$sectionTxt = $this->_text[$section]['section'];	
+				}
+				
+				if(!empty($this->_text[$section]['description'])) $description = $this->_text[$section]['description'];
+			}
+			$html .= $this->Html->tag($titleTag, $sectionTxt);
+			if($description) $html .= $this->Html->tag('p', $description);
 			$sectionHtml = '';
 
 			foreach ($items as $item) {
