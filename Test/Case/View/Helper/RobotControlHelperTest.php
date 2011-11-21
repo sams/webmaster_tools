@@ -15,6 +15,7 @@ if (!defined('FULL_BASE_URL')) {
  *
  * @package       Cake.Test.Case.View.Helper
  */
+if(!class_exists('TestController')) {
 class TestController extends Controller {
 
 /**
@@ -31,6 +32,8 @@ class TestController extends Controller {
  */
 	public $uses = null;
 }
+	
+}
 
 /**
  * Robot Control Helper Class Test
@@ -38,6 +41,7 @@ class TestController extends Controller {
  * @package    webmaster_tools
  * @subpackage webmaster_tools.tests.cases.views.helpers
  */
+if(!class_exists('RobotControlHelperTest')) {
 class RobotControlHelperTest extends CakeTestCase {
 
 	protected $_online;
@@ -201,5 +205,6 @@ TXT;
 		$this->assertNotEqual($resultA, $resultB);
 	}
 
+}
 }
 ?>
