@@ -15,6 +15,7 @@ if (!defined('FULL_BASE_URL')) {
  *
  * @package       Cake.Test.Case.View.Helper
  */
+if(!class_exists('TestController')) {
 class TestController extends Controller {
 
 /**
@@ -31,18 +32,21 @@ class TestController extends Controller {
  */
 	public $uses = null;
 }
-
+}
 /**
  * Robot Control Helper Class Test
  *
  * @package    webmaster_tools
  * @subpackage webmaster_tools.tests.cases.views.helpers
  */
+if(!class_exists('AnalyticsHelperTest')) {
 class AnalyticsHelperTest extends CakeTestCase {
 
 	public $Helper;
 
 	protected $_online;
+	protected $_backup;
+	protected $_settings;
 
 	public function setUp() {
 		parent::setUp();
@@ -58,23 +62,235 @@ class AnalyticsHelperTest extends CakeTestCase {
 
 	public function testConfig() {
 
+		Configure::write('WebmasterTools.googleAnalytics', array(
+			'enable' => true,
+			'account' => 'TW-834899-34',
+			'domainName' => 'example.com',
+			'allowLinker' => null,
+			'allowHash' => null
+		));
+		$this->Analytics->config(array(
+			'enable' => true,
+			'account' => 'TW-834599-34',
+			'domainName' => 'example2.com',
+			'allowLinker' => true,
+			'allowHash' => true
+		));
+		$result = $this->Analytics->generate();
+		$expected = <<<HTML
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(["_setEnable",true]);
+  _gaq.push(["_setAccount","TW-834599-34"]);
+  _gaq.push(["_setDomainName","example2.com"]);
+  _gaq.push(["_setAllowLinker",true]);
+  _gaq.push(["_setAllowHash",true]);
+
+  (function() {
+    var ga = document.createElement('script');
+    ga.type = 'text/javascript';
+    ga.async = true;
+    ga.src = 'http://www.google-analytics.com/ga.js';
+
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+HTML;
+		$this->assertEqual($expected, $result);
+
 	}
 
 	public function testAnonymizeIp() {
+
+		Configure::write('WebmasterTools.googleAnalytics', array(
+			'enable' => true,
+			'account' => 'TW-834899-34',
+			'domainName' => 'example.com',
+			'allowLinker' => null,
+			'allowHash' => null
+		));
+		$this->Analytics->anonymizeIp();
+		$result = $this->Analytics->generate();
+		$expected = <<<HTML
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(["_gat._anonymizeIp"]);
+
+  (function() {
+    var ga = document.createElement('script');
+    ga.type = 'text/javascript';
+    ga.async = true;
+    ga.src = 'http://www.google-analytics.com/ga.js';
+
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+HTML;
+
+		
+		$this->assertEqual($expected, $result);
 
 	}
 
 	public function testVariable() {
 
+		Configure::write('WebmasterTools.googleAnalytics', array(
+			'enable' => true,
+			'account' => 'TW-834899-34',
+			'domainName' => 'example.com',
+			'allowLinker' => null,
+			'allowHash' => null
+		));
+		$this->Analytics->variable('index.php', 'varName2', 'MyThing');
+		$result = $this->Analytics->generate();
+		$expected = <<<HTML
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(["_setCustomVar","index.php","varName2","MyThing",3]);
+
+  (function() {
+    var ga = document.createElement('script');
+    ga.type = 'text/javascript';
+    ga.async = true;
+    ga.src = 'http://www.google-analytics.com/ga.js';
+
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+HTML;
+
+		
+		$this->assertEqual($expected, $result);
+
 	}
+
+//	public function testVariableScope() {
+//
+//		Configure::write('WebmasterTools.googleAnalytics', array(
+//			'enable' => true,
+//			'account' => 'TW-834899-34',
+//			'domainName' => 'example.com',
+//			'allowLinker' => null,
+//			'allowHash' => null
+//		));
+//		$this->Analytics->variable('index.php', 'varName', 'myvalue', 'page');
+//		$result = $this->Analytics->generate();
+//		$expected = <<<HTML
+//<script type="text/javascript">
+//
+//  var _gaq = _gaq || '';
+//
+//  (function() {
+//    var ga = document.createElement('script');
+//    ga.type = 'text/javascript';
+//    ga.async = true;
+//    ga.src = 'http://www.google-analytics.com/ga.js';
+//
+//    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+//  })();
+//
+//</script>
+//HTML;
+//
+//		
+//		$this->assertEqual($expected, $result);
+//
+//	}
 
 	public function testTrackPageview() {
 
+
+		Configure::write('WebmasterTools.googleAnalytics', array(
+			'enable' => true,
+			'account' => 'TW-834899-34',
+			'domainName' => 'example.com',
+			'allowLinker' => null,
+			'allowHash' => null
+		));
+		$this->Analytics->trackPageview('/pages/about/me');
+		$result = $this->Analytics->generate();
+		$expected = <<<HTML
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(["_trackPageview","\/pages\/about\/me"]);
+
+  (function() {
+    var ga = document.createElement('script');
+    ga.type = 'text/javascript';
+    ga.async = true;
+    ga.src = 'http://www.google-analytics.com/ga.js';
+
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+HTML;
+
+		
+		$this->assertEqual($expected, $result);
 	}
 
 	public function testGenerate() {
 
+		Configure::write('WebmasterTools.googleAnalytics', array(
+			'enable' => true,
+			'account' => 'TW-834899-34',
+			'domainName' => 'example.com',
+			'allowLinker' => null,
+			'allowHash' => null
+		));
+		$result = $this->Analytics->generate();
+		$expected = <<<HTML
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+
+  (function() {
+    var ga = document.createElement('script');
+    ga.type = 'text/javascript';
+    ga.async = true;
+    ga.src = 'http://www.google-analytics.com/ga.js';
+
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+HTML;
+
+		
+		$this->assertEqual($expected, $result);
+		
+		$result = $this->Analytics->generate(array(
+			'reset' => false
+		));
+		$expected = <<<HTML
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+
+  (function() {
+    var ga = document.createElement('script');
+    ga.type = 'text/javascript';
+    ga.async = true;
+    ga.src = 'http://www.google-analytics.com/ga.js';
+
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+HTML;
+
+		
+		$this->assertEqual($expected, $result);
 	}
 
+}
 }
 ?>
