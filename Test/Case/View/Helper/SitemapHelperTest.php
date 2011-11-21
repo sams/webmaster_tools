@@ -11,6 +11,7 @@ App::uses('SitemapHelper', 'WebmasterTools.View/Helper');
  *
  * @package       Cake.Test.Case.View.Helper
  */
+if(!class_exists('TestController')) {
 class TestController extends Controller {
 
 /**
@@ -27,7 +28,10 @@ class TestController extends Controller {
  */
 	public $uses = null;
 }
+	
+}
 
+if(!class_exists('SitemapHelperTestCase')) {
 class SitemapHelperTestCase extends CakeTestCase {
 
 	protected $_online;
@@ -165,5 +169,6 @@ HTML;
 		$this->assertEqual($expected, $result);
 	}
 
+}
 }
 ?>
