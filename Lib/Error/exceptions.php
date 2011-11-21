@@ -18,6 +18,7 @@ if (!class_exists('HttpException')) {
  *
  * @package       WebmasterTool.Lib.Error
  */
+if (!class_exists('MaintenanceException')) {
 class MaintenanceException extends HttpException {
 
 	private $_revist = null;	
@@ -41,4 +42,6 @@ class MaintenanceException extends HttpException {
 	public function getRevisit() {
 		return $this->_revisit;
 	}
+}
+
 }
