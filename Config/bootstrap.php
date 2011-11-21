@@ -37,7 +37,31 @@ Configure::write('WebmasterTools.googleAnalytics', array(
 ));
 
 Configure::write('WebmasterTools.mapModels', array(
-    'Pages' => array(':action' => 'display', array('home', 'about', 'contact')),
+    'Pages' => array(
+        ':action' => 'display',
+        array(
+            'home',
+            //=> array(
+            //    'title' => 'Home Page Title',
+            //    'modified' => 'YYYY-MM-DD hh:mm:SS',
+            //    'changes' => 'monthly',
+            //    'priority' => 0.8
+            //),
+            'about',
+            //=> array(
+            //    'title' => 'Its all About Me YO!',
+            //    'modified' => 'YYYY-MM-DD hh:mm:SS',
+            //    'changes' => 'yearly',
+            //    'priority' => 0.9
+            //),
+            'contact'
+            //=> array(
+            //    'title' => 'Contact Me via this Form',
+            //    'modified' => 'YYYY-MM-DD hh:mm:SS',
+            //    'changes' => 'never',
+            //    'priority' => 0.2
+            //)
+        ),
+    )
 ));
 
-?>
