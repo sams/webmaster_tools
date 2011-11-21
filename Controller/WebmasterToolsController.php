@@ -22,8 +22,6 @@
  * @package    webmaster_tools
  * @subpackage webmaster_tools.controllers
  */
-App::uses('CakeResponse', 'Network');
-App::uses('CakeRequest', 'Network');
 App::uses('WebmasterToolsAppController', 'WebmasterTools.Controller');
 class WebmasterToolsController extends WebmasterToolsAppController {
 
@@ -48,9 +46,6 @@ class WebmasterToolsController extends WebmasterToolsAppController {
 	}
 
 	public function sitemap(){
-		    
-		    //debug($this->response);
-		    //diebug($this->request->params['ext']);
 		    $mapData = $mapModels = array();
 		    $mapModels = Configure::read('WebmasterTools.mapModels');
 		    
@@ -77,24 +72,30 @@ class WebmasterToolsController extends WebmasterToolsAppController {
 			    
 		    }
 		    
-		    #  diebug($mapData);
-		    
 		    $this->set(compact('mapData'));
 		    
 		    if(!empty($this->request->params['ext']) && $this->request->params['ext'] == 'xml') {
-			    
-			    $this->render('xml/sitemap', 'xml/default');
+			$template = APP . 'View' . DS . 'webmaster_tools' . DS . 'xml' . DS . 'sitemap' . '.ctp';
+			$template = (file_exists($template)) ? $template : 'xml/sitemap';
+			$this->render($template, 'xml/default');
 		    }
+		    
+		    
+		$theme = '';
+		if($this->theme) $theme = 'Themed' . DS . $this->theme . DS;  
+		$template = APP . 'View' . DS . $theme . 'webmaster_tools' . DS . 'sitemap' . '.ctp';
+		$template = (file_exists($template)) ? $template : 'sitemap';
+		$this->render($template);
 	    }
 	
 	public function robot_control() {
-		    if(!empty($this->request->params['ext']) && $this->request->params['ext'] == 'txt') {
-			    $this->render('txt/robot_control', 'ajax');
-		    } else {
-			    throw new NotFoundException;
-		    }
+		if(!empty($this->request->params['ext']) && $this->request->params['ext'] == 'txt') {
+		    $template = APP . 'View' . DS . 'webmaster_tools' . DS . 'txt' . DS . 'robot_control' . '.ctp';
+		    $template = (file_exists($template)) ? $template : 'txt/robot_control';
+		    $this->render($template, 'ajax');
+		} else {
+		    throw new NotFoundException;
+		}
 	}
 
 }
-
-?>
