@@ -26,9 +26,11 @@ App::uses('WebmasterToolsAppController', 'WebmasterTools.Controller');
 class WebmasterToolsController extends WebmasterToolsAppController {
 
 	public $uses = array();
+	private $_ext = false;
 
 	public function beforeFilter() {
 		parent::beforeFilter();
+		$this->_ext = (!empty($this->request->params['ext'])) ? $this->request->params['ext'] : false;
 
 		if (isset($this->Auth)) {
 			$this->Auth->allow('sitemap', 'robot_control');
@@ -46,50 +48,99 @@ class WebmasterToolsController extends WebmasterToolsAppController {
 	}
 
 	public function sitemap(){
-		    $mapData = $mapModels = array();
-		    $mapModels = Configure::read('WebmasterTools.mapModels');
+		$mapData = $mapModels = $tmp = $mapText = array();
+		$mapModels = Configure::read('WebmasterTools.mapModels');
+		
+		//debug($mapModels);
+		
+		$controller = false;
+		
+		foreach($mapModels as $model => $params) {
+			$controller = Inflector::pluralize($model);
+			$url = array();
+			$action = 'display';
+			$type = 'static';
+    
+			if($controller == $model) {
+				$model = Inflector::singularize($controller);
+				$tmp[$controller][':type'] = 'static';
+				$tmp[$controller][':route'] = $params[0];
+				$items = array_keys($params[0]);
+			} else {
+				$method = $params[1][':method'];
+				$type = $params[1][':type'];
+				$args = $params[1][':args'];
+				// a model using find
+				$this->loadModel($model);
+				$$model = new $model;
+				$tmp[$controller] = $$model->$method($type, $args);
+				$tmp[$controller][':type'] = 'dynamic';
+				$tmp[$controller][':route'] = $params[0];		
+			}
+				
+			$title = $changes = $priority = $changes = $modified = $section = null;
+			$sitemapDefaults = array(
+				'modified' => null,
+				'changes' => null, // always, hourly, daily, weekly, monthly, yearly, never.
+				'priority' => null, // 0.0 - 1.0 (most important), 0.5 is considered the default.
+				'title' => null, // For XML used as comment, otherwise for HTML.
+				'section' => null, // Used for HTML only.
+				'images' => array()
+			);
+			
+			//diebug($tmp[$controller]);
+			
+			if(!$this->_ext) {
+				$mapText[$controller]['section'] = (!empty($mapModels[$controller][':section'])) ? $mapModels[$controller][':section'] : null;
+				$mapText[$controller]['description'] = (!empty($mapModels[$controller][':description'])) ? $mapModels[$controller][':description'] : false;
+			}
+			
+			// logic moved from sitemap view
+			$i = $j = 0;
+			for($i; $i < count($items); $i++) {	
+				for($j; $j < count($tmp[$controller][':route']); $j++) {
+					if($type == 'static') {
+						$url = $tmp[$controller][':route'][$items[$j]]['url'];
+						unset($tmp[$controller][':route'][$items[$j]]['url']);
+						$data = $tmp[$controller][':route'][$items[$j]];
+						//if()
+						//$url = array('controller' => $controller, 'action' => $action, 'plugin' => null, $url);
+					} else {
+						// this should be the displayField
+						$title = $tmp[$controller][$items[$j]]['title'];
+						$type = $tmp[$controller][$items[$j]][':route']; unset($tmp[$controller][$items[$j]]);
+						$url = array_merge($url, $tmp[$controller][$type]);
+					}
+		
+					$data['section'] = $controller; 	
+					
+					$mapData[$controller][$j] = array(
+								'url' => $url,
+								'data' => array_merge($sitemapDefaults, $data)
+							);
+				}
+			}
+		}
+		
+		$this->set(compact('mapData', 'mapText'));
 		    
-		    $controller = false;
-		    
-		    foreach($mapModels as $model => $params) {
-			    $controller = Inflector::pluralize($model);
-	
-			    if($controller == $model) {
-				    $model = Inflector::singularize($controller);
-				    $mapData[$controller][':type'] = 'static';
-				    $mapData[$controller][':route'] = $params[0];
-			    } else {
-				    $method = $params[1][':method'];
-				    $type = $params[1][':type'];
-				    $args = $params[1][':args'];
-				    // a model using find
-				    $this->loadModel($model);
-				    $$model = new $model;
-				    $mapData[$controller] = $$model->$method($type, $args);
-				    $mapData[$controller][':type'] = 'dynamic';
-				    $mapData[$controller][':route'] = $params[0];		
-			    }
-			    
-		    }
-		    
-		    $this->set(compact('mapData'));
-		    
-		    if(!empty($this->request->params['ext']) && $this->request->params['ext'] == 'xml') {
-			$template = APP . 'View' . DS . 'webmaster_tools' . DS . 'xml' . DS . 'sitemap' . '.ctp';
-			$template = (file_exists($template)) ? $template : 'xml/sitemap';
-			$this->render($template, 'xml/default');
-		    }
+		if($this->_ext == 'xml') {
+		Configure::write('debug', 0);
+		    $template = APP . 'View' . DS . 'WebmasterTools' . DS . 'xml' . DS . 'sitemap' . '.ctp';
+		    $template = (file_exists($template)) ? $template : 'xml/sitemap';
+		    return $this->render($template, 'xml/default');
+		}
 		    
 		    
 		$theme = '';
 		if($this->theme) $theme = 'Themed' . DS . $this->theme . DS;  
-		$template = APP . 'View' . DS . $theme . 'webmaster_tools' . DS . 'sitemap' . '.ctp';
+		$template = APP . 'View' . DS . $theme . 'WebmasterTools' . DS . 'sitemap' . '.ctp';
 		$template = (file_exists($template)) ? $template : 'sitemap';
 		$this->render($template);
-	    }
+	}
 	
 	public function robot_control() {
-		if(!empty($this->request->params['ext']) && $this->request->params['ext'] == 'txt') {
+		if($this->_ext == 'txt') {
 		    $template = APP . 'View' . DS . 'webmaster_tools' . DS . 'txt' . DS . 'robot_control' . '.ctp';
 		    $template = (file_exists($template)) ? $template : 'txt/robot_control';
 		    $this->render($template, 'ajax');
