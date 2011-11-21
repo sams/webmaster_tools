@@ -15,6 +15,7 @@
  * @copyright  2010 David Persson <davidpersson@gmx.de>
  * @license    http://www.opensource.org/licenses/mit-license.php The MIT License
  */
+App::uses('Component', 'Controller');
 /**
  * Maintenance Component Class
  *
@@ -37,7 +38,7 @@ class MaintenanceComponent extends Component {
 	 * @return void
 	 */
 	public function activate($message = null) {
-		Configure::write('debug', 2);
+		Configure::write('debug', 0);
 		throw new MaintenanceException($message);
 	}
 }
