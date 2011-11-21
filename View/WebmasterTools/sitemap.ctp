@@ -1,6 +1,5 @@
 <h2>Sitemap</h2>
 <?php
-$this->set('title_for_layout', 'Sitemap');
 
 $this->loadHelper('WebmasterTools.Sitemap');
 
