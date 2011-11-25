@@ -1,5 +1,5 @@
 <?php
-	$this->layout = 'ajax';
+	//$this->layout = 'ajax';
 
 	$this->RobotControl->deny('/');
 	echo $this->RobotControl->generate();

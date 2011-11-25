@@ -53,8 +53,12 @@ class WebmasterToolsController extends WebmasterToolsAppController {
     public function robot_control() {
 		$this->helpers[] = 'WebmasterTools.RobotControl';
 
-		$this->RequestHandler->respondAs('txt');
-		$this->render('txt/robot_control');
+
+        if ($this->RequestHandler->prefers('txt')) {
+ 			$this->RequestHandler->respondAs('txt');
+        }
+			//$this->layout = 'ajax';
+		$this->render('robot_control');
     }
 
 }
