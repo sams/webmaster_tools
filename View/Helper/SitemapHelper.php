@@ -16,7 +16,7 @@
  * @license    http://www.opensource.org/licenses/mit-license.php The MIT License
  * @link       http://sitemaps.org/protocol.php
  */
-
+App::uses('AppHelper', 'View/Helper');
 /**
  * Sitemap Helper Class
  *
