@@ -1,4 +1,11 @@
 <?php
+/* Sitemap Test cases generated on: 2011-11-21 10:11:11 : 1321872851*/
+App::uses('Controller', 'Controller');
+App::uses('Helper', 'View');
+App::uses('AppHelper', 'View/Helper');
+App::uses('ClassRegistry', 'Utility'); 
+App::uses('SitemapHelper', 'WebmasterTools.View/Helper');
+
 /**
  * Sitemap Helper File Test
  *
@@ -16,25 +23,38 @@
  * @license    http://www.opensource.org/licenses/mit-license.php The MIT License
  * @link       http://sitemaps.org/protocol.php
  */
-App::import('Helper', 'WebmasterTools.Sitemap');
-App::import('Helper', 'Html');
+if(!class_exists('TestController')) {
+class TestController extends Controller {
+	public $name = 'TheTest';
 
 /**
- * Sitemap Helper Class Test
+ * uses property
  *
- * @package    webmaster_tools
- * @subpackage webmaster_tools.tests.cases.views.helpers
+ * @var mixed null
  */
+	public $uses = null;
+}
+	
+}
+
+if(!class_exists('SitemapHelperTestCase')) {
 class SitemapHelperTestCase extends CakeTestCase {
 
-	public $Helper;
-
 	protected $_online;
+	
+	public function startTest() {
+		parent::setUp();
+		$this->View = $this->getMock('View', null, array(new TestController()));
+		$this->Sitemap = new SitemapHelper($this->View);
+	}
 
-	public function setUp() {
-		$this->Helper = new SitemapHelper();
-		$this->Helper->Html = new HtmlHelper(); // load helper's helpers manually
-		$this->_online = (boolean) @fsockopen('cakephp.org', 80);
+	public function endTest() {
+		unset($this->Sitemap);
+		ClassRegistry::flush();
+	}
+
+	public function testAdd() {
+
 	}
 
 	public function testSiteindexXml() {
@@ -45,49 +65,25 @@ class SitemapHelperTestCase extends CakeTestCase {
 			return;
 		}
 
-		$this->Helper->add(array('controller' => 'site-a', 'action' => 'map', 'ext' => 'xml'), array(
+		$this->Sitemap->add(array('controller' => 'site-a', 'action' => 'map', 'ext' => 'xml'), array(
 			'title' => 'a map'
 		));
-		$this->Helper->add(array('controller' => 'site-b', 'action' => 'map', 'ext' => 'xml'), array(
+		$this->Sitemap->add(array('controller' => 'site-b', 'action' => 'map', 'ext' => 'xml'), array(
 			'title' => 'b map'
 		));
 
 		$Document = new DomDocument();
-		$Document->loadXml($this->Helper->generate('indexXml'));
+		$Document->loadXml($this->Sitemap->generate('indexXml'));
 		$result = $Document->schemaValidate('http://www.sitemaps.org/schemas/sitemap/0.9/siteindex.xsd');
 
 		$this->assertTrue($result);
 	}
 
-	public function testSitemapXml() {
-		$skipped  = $this->skipIf(!class_exists('DomDocument'), '%s DomDocument class not available.');
-		$skipped |= $this->skipIf(!$this->_online, '%s Not connected to the internet.');
-
-		if ($skipped) {
-			return;
-		}
-
-		$this->Helper->add(array('controller' => 'posts-abcdef', 'action' => 'index'), array(
+	public function testGenerateTxt() {
+		$this->Sitemap->add(array('controller' => 'posts-abcdef', 'action' => 'index'), array(
 			'title' => 'post index'
 		));
-		$this->Helper->add(array('controller' => 'posts-abcdef', 'action' => 'add'), array(
-			'title' => 'post add',
-			'modified' => 'monthly',
-			'priority' => 0.4,
-			'section' => 'the section'
-		));
-		$Document = new DomDocument();
-		$Document->loadXml($this->Helper->generate('xml'));
-		$result = $Document->schemaValidate('http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd');
-
-		$this->assertTrue($result);
-	}
-
-	public function testSitemapTxt() {
-		$this->Helper->add(array('controller' => 'posts-abcdef', 'action' => 'index'), array(
-			'title' => 'post index'
-		));
-		$this->Helper->add(array('controller' => 'posts-abcdef', 'action' => 'add'), array(
+		$this->Sitemap->add(array('controller' => 'posts-abcdef', 'action' => 'add'), array(
 			'title' => 'post add',
 			'modified' => 'monthly',
 			'priority' => 0.4,
@@ -96,7 +92,7 @@ class SitemapHelperTestCase extends CakeTestCase {
 
 		$baseUrl = defined('FULL_BASE_URL') ? FULL_BASE_URL : 'http://localhost';
 
-		$result = $this->Helper->generate('txt');
+		$result = $this->Sitemap->generate('txt');
 		$expected = <<<TXT
 {$baseUrl}/posts-abcdef
 {$baseUrl}/posts-abcdef/add
@@ -105,38 +101,50 @@ TXT;
 		$this->assertEqual($expected, $result);
 	}
 
-	public function testSitemapHtml() {
-		$this->Helper->add(array('controller' => 'posts-abcdef', 'action' => 'index'), array(
+	public function testGenerateXml() {
+		$skipped  = $this->skipIf(!class_exists('DomDocument'), '%s DomDocument class not available.');
+		$skipped |= $this->skipIf(!$this->_online, '%s Not connected to the internet.');
+
+		if ($skipped) {
+			return;
+		}
+
+		$this->Sitemap->add(array('controller' => 'posts-abcdef', 'action' => 'index'), array(
 			'title' => 'post index'
 		));
-		$this->Helper->add(array('controller' => 'posts-abcdef', 'action' => 'add'), array(
+		$this->Sitemap->add(array('controller' => 'posts-abcdef', 'action' => 'add'), array(
 			'title' => 'post add',
 			'modified' => 'monthly',
 			'priority' => 0.4,
 			'section' => 'the section'
 		));
 
-		$result = $this->Helper->generate('html');
+		$Document = new DomDocument();
+		$Document->loadXml($this->Sitemap->generate('xml'));
+		$result = $Document->schemaValidate('http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd');
+
+		$this->assertTrue($result);
+	}
+
+	public function testGenerateHtml() {
+
+		$this->Sitemap->add(array('controller' => 'posts-abcdef', 'action' => 'index'), array(
+			'title' => 'post index'
+		));
+		$this->Sitemap->add(array('controller' => 'posts-abcdef', 'action' => 'add'), array(
+			'title' => 'post add',
+			'modified' => 'monthly',
+			'priority' => 0.4,
+			'section' => 'the section'
+		));
+
+		$result = $this->Sitemap->generate('html');
 		$expected = <<<HTML
 <h2></h2><ul class="sitemap"><li><a href="/posts-abcdef">post index</a></li></ul><h2>the section</h2><ul class="sitemap the-section"><li><a href="/posts-abcdef/add">post add</a></li></ul>
 HTML;
 		$this->assertEqual($expected, $result);
 	}
 
-	public function testReset() {
-		$this->Helper->add(array('controller' => 'posts-abcdef', 'action' => 'index'), array(
-			'title' => 'post index'
-		));
-		$resultA = $this->Helper->generate('txt');
-		$resultB = $this->Helper->generate('txt');
-
-		$this->assertEqual($resultA, $resultB);
-
-		$resultA = $this->Helper->generate('txt', array('reset' => true));
-		$resultB = $this->Helper->generate('txt');
-
-		$this->assertNotEqual($resultA, $resultB);
-	}
 }
-
+}
 ?>

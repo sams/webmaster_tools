@@ -1,6 +1,17 @@
 <?php
+/* RobotControl Test cases generated on: 2011-11-21 10:11:31 : 1321872871*/
+App::uses('Controller', 'Controller');
+App::uses('Helper', 'View');
+App::uses('AppHelper', 'View/Helper');
+App::uses('ClassRegistry', 'Utility'); 
+App::uses('RobotControlHelper', 'WebmasterTools.View/Helper');
+
+if (!defined('FULL_BASE_URL')) {
+	define('FULL_BASE_URL', 'http://localhost');
+}
+
 /**
- * Robot Control Helper File Test
+ * TestController class
  *
  * Copyright (c) 2010 David Persson
  *
@@ -16,10 +27,18 @@
  * @license    http://www.opensource.org/licenses/mit-license.php The MIT License
  * @link       http://sitemaps.org/protocol.php
  */
-App::import('Helper', 'WebmasterTools.RobotControl');
+if(!class_exists('TestController')) {
+class TestController extends Controller {
+	public $name = 'TheTest';
 
-if (!defined('FULL_BASE_URL')) {
-	define('FULL_BASE_URL', 'http://localhost');
+/**
+ * uses property
+ *
+ * @var mixed null
+ */
+	public $uses = null;
+}
+	
 }
 
 /**
@@ -28,58 +47,44 @@ if (!defined('FULL_BASE_URL')) {
  * @package    webmaster_tools
  * @subpackage webmaster_tools.tests.cases.views.helpers
  */
-class RobotControlHelperTestCase extends CakeTestCase {
-
-	public $Helper;
+if(!class_exists('RobotControlHelperTest')) {
+class RobotControlHelperTest extends CakeTestCase {
 
 	protected $_online;
 
 	public function setUp() {
-		$this->Helper = new RobotControlHelper();
+		parent::setUp();
+		$this->View = $this->getMock('View', null, array(new TestController()));
 		$this->_online = (boolean) @fsockopen('cakephp.org', 80);
+		$this->RobotControl = new RobotControlHelper($this->View);
 	}
 
-	public function testRelativeUrls() {
-		$result = $this->Helper->url(array('controller' => 'posts', 'action' => 'add'));
-		$this->assertEqual('/posts/add', $result);
-
-		$result = $this->Helper->url('/css');
-		$this->assertEqual('/css', $result);
-
-		$result = $this->Helper->url(FULL_BASE_URL . '/css');
-		$this->assertEqual('/css', $result);
+	public function endTest() {
+		unset($this->RobotControl);
+		ClassRegistry::flush();
 	}
 
-	public function testUrlsTrailingSlashIsNotTouched() {
-		$result = $this->Helper->url('/css/');
-		$this->assertEqual('/css/', $result);
+	public function testAllow() {
 
-		$result = $this->Helper->url('css');
-		$this->assertEqual('/css', $result);
-	}
+		$this->RobotControl->allow('/css/');
+		$this->RobotControl->allow('/img/');
 
-	public function testWildcards() {
-		$this->Helper->deny('/*q=');
-		$this->Helper->deny('/*.atom');
-		$this->Helper->deny('/*/raw/');
-
-		$result = $this->Helper->generate();
+		$result = $this->RobotControl->generate();
 		$expected = <<<TXT
 User-agent: *
-Disallow: /*q=
-Disallow: /*.atom
-Disallow: /*/raw/
+Allow: /css/
+Allow: /img/
 
 TXT;
 		$this->assertEqual($expected, $result);
 	}
 
-	public function testAllowDenyOrder() {
-		$this->Helper->allow('/css/');
-		$this->Helper->deny('/secret/');
-		$this->Helper->allow('/img/');
+	public function testDeny() {
+		$this->RobotControl->allow('/css/');
+		$this->RobotControl->allow('/img/');
+		$this->RobotControl->deny('/secret/');
 
-		$result = $this->Helper->generate();
+		$result = $this->RobotControl->generate();
 		$expected = <<<TXT
 User-agent: *
 Allow: /css/
@@ -91,9 +96,10 @@ TXT;
 	}
 
 	public function testSitemap() {
-		$this->Helper->sitemap('/sitemap.xml');
 
-		$result = $this->Helper->generate();
+		$this->RobotControl->sitemap('/sitemap.xml');
+
+		$result = $this->RobotControl->generate();
 		$expectedUrl = FULL_BASE_URL . '/sitemap.xml';
 		$expected = <<<TXT
 User-agent: *
@@ -103,12 +109,12 @@ TXT;
 		$this->assertEqual($expected, $result);
 	}
 
-	public function testAgentBlocks() {
-		$this->Helper->allow('/test0/');
-		$this->Helper->allow('/test1/', 'agent0');
-		$this->Helper->allow('/test2/');
+	public function testCrawlBlocks() {
+		$this->RobotControl->allow('/test0/');
+		$this->RobotControl->allow('/test1/', 'agent0');
+		$this->RobotControl->allow('/test2/');
 
-		$result = $this->Helper->generate(array('reset' => true));
+		$result = $this->RobotControl->generate(array('reset' => true));
 		$expected = <<<TXT
 User-agent: agent0
 Allow: /test1/
@@ -120,13 +126,13 @@ Allow: /test2/
 TXT;
 		$this->assertEqual($expected, $result);
 
-		$this->Helper->allow('/test0/', 'agent0');
-		$this->Helper->allow('/test1/', 'agent1');
-		$this->Helper->allow('/test2/', 'agent2');
-		$this->Helper->allow('/test3/');
-		$this->Helper->allow('/test4/', 'agent2');
+		$this->RobotControl->allow('/test0/', 'agent0');
+		$this->RobotControl->allow('/test1/', 'agent1');
+		$this->RobotControl->allow('/test2/', 'agent2');
+		$this->RobotControl->allow('/test3/');
+		$this->RobotControl->allow('/test4/', 'agent2');
 
-		$result = $this->Helper->generate(array('reset' => true));
+		$result = $this->RobotControl->generate(array('reset' => true));
 		$expected = <<<TXT
 User-agent: agent2
 Allow: /test2/
@@ -146,9 +152,9 @@ TXT;
 	}
 
 	public function testCrawlDelay() {
-		$this->Helper->crawlDelay(30);
+		$this->RobotControl->crawlDelay(30);
 
-		$result = $this->Helper->generate();
+		$result = $this->RobotControl->generate();
 		$expected = <<<TXT
 User-agent: *
 Crawl-delay: 30
@@ -158,9 +164,9 @@ TXT;
 	}
 
 	public function testVisitTime() {
-		$this->Helper->visitTime('13:00', '20:00');
+		$this->RobotControl->visitTime('13:00', '20:00');
 
-		$result = $this->Helper->generate();
+		$result = $this->RobotControl->generate();
 		$expected = <<<TXT
 User-agent: *
 Visit-time: 13:00 - 20:00
@@ -170,11 +176,11 @@ TXT;
 	}
 
 	public function testRequestRate() {
-		$this->Helper->requestRate(20, '13:00', '20:00', 'agent0');
-		$this->Helper->requestRate(20, '13:00', null, 'agent1');
-		$this->Helper->requestRate(20, null, null, 'agent2');
+		$this->RobotControl->requestRate(20, '13:00', '20:00', 'agent0');
+		$this->RobotControl->requestRate(20, '13:00', null, 'agent1');
+		$this->RobotControl->requestRate(20, null, null, 'agent2');
 
-		$result = $this->Helper->generate();
+		$result = $this->RobotControl->generate();
 		$expected = <<<TXT
 User-agent: agent2
 Request-rate: 20/60
@@ -189,18 +195,23 @@ TXT;
 		$this->assertEqual($expected, $result);
 	}
 
+	public function testComment() {
+
+	}
+
 	public function testReset() {
-		$this->Helper->allow('/css/');
-		$resultA = $this->Helper->generate();
-		$resultB = $this->Helper->generate();
+		$this->RobotControl->allow('/css/');
+		$resultA = $this->RobotControl->generate();
+		$resultB = $this->RobotControl->generate();
 
 		$this->assertEqual($resultA, $resultB);
 
-		$resultA = $this->Helper->generate(array('reset' => true));
-		$resultB = $this->Helper->generate();
+		$resultA = $this->RobotControl->generate(array('reset' => true));
+		$resultB = $this->RobotControl->generate();
 
 		$this->assertNotEqual($resultA, $resultB);
 	}
-}
 
+}
+}
 ?>
