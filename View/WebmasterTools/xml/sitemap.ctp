@@ -1,6 +1,6 @@
 <?php
-	$sitemap->add('/bla', array(
+	$this->Sitemap->add('/bla', array(
 		'changes' => 'always'
 	));
-	echo $sitemap->generate();
+	echo $this->Sitemap->generate();
 ?>
