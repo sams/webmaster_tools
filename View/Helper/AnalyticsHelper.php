@@ -10,7 +10,7 @@ class AnalyticsHelper extends AppHelper {
 
 	protected $_View;
 
-	protected $_commmands = array();
+	protected $_commands = array();
 
 	// If null will use google hosted script.
 	protected $_script;
