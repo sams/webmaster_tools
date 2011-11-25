@@ -19,11 +19,9 @@
 Router::connect('/sitemap', array(
 	'plugin' => 'webmaster_tools', 'controller' => 'webmaster_tools', 'action' => 'sitemap'
 ));
-Router::connect('/sitemap.xml', array(
-	'plugin' => 'webmaster_tools', 'controller' => 'webmaster_tools', 'action' => 'sitemap'
-));
-Router::connect('/robots.txt', array(
+
+Router::connect('/robots', array(
 	'plugin' => 'webmaster_tools', 'controller' => 'webmaster_tools', 'action' => 'robot_control'
 ));
+
 Router::parseExtensions();
-?>
