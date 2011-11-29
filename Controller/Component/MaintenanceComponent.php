@@ -23,10 +23,18 @@ App::uses('Component', 'Controller');
  * @subpackage webmaster_tools.controllers.components
  */
 class MaintenanceComponent extends Component {
+
+	private $__Controller;
+
+	public function initialize(Controller $Controller) {
+		$this->__Controller = $Controller;
+	}
+
 	/**
 	 * Activates maintenance mode.
 	 *
-	 * Disables debug mode (if activated for i.e. admin) throwing an exception.
+	 * Disables debug mode (if activated for i.e. admin) and sets
+	 * an appropriate header.
 	 *
 	 * Example usage:
 	 * {{{
