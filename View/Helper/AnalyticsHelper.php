@@ -25,19 +25,25 @@ class AnalyticsHelper extends AppHelper {
 	const OPT_SCOPE_SESSION = 2;
 	const OPT_SCOPE_PAGE = 3;
 
+	protected $_View;
+
 	protected $_commands = array();
 
 	// If null will use google hosted script.
 	protected $_script;
 
-	public function __construct(View $View, $options = array()) {
-		foreach ($options as $key => $value) {
+	public function __construct(View $View, $settings = array()) {
+		$this->_View = $View;
+
+		foreach ((array) $settings as $key => $value) {
 			if (property_exists($this, $property = "_{$key}")) {
 				$this->{$property} = $value;
 			} else {
 				call_user_func(array($this, $key), $value);
 			}
 		}
+
+		parent::__construct($View, (array) $settings);
 	}
 
 	public function config($settings) {
@@ -47,6 +53,10 @@ class AnalyticsHelper extends AppHelper {
 	}
 
 	/* Options */
+
+	public function script($url) {
+		$this->_script = $url;
+	}
 
 	public function __call($method, $args) {
 		$this->_commands[] = array_merge(array('_set' . ucfirst($method)), $args);
@@ -88,6 +98,29 @@ class AnalyticsHelper extends AppHelper {
 		$this->_commands[] = $url ? array('_trackPageview', $url) : array('_trackPageview');
 	}
 
+	public function trackPageLoadTime() {
+		$this->_commands[] = array('_trackPageLoadTime');
+	}
+
+	public function trackEvent($category, $action, $label = null, $value = null) {
+		$command = array(
+			'_trackEvent',
+			$category,
+			$action
+		);
+		if (isset($label)) {
+			$command[] = $label ? $label : 'undefined';
+		}
+		if (isset($value)) {
+			if (!is_int($value)) {
+				$message  = "Analytics::trackEvent - Value is not an integer.";
+				trigger_error($message, E_USER_NOTICE);
+			}
+			$command[] = $value;
+		}
+		return $this->_renderCommand($command);
+	}
+
 	/**
 	 * Generates HTML and JavaScript to enable tracking. Will skip generation
 	 * if the DNT HTTP header is set and is trueish.
@@ -100,13 +133,14 @@ class AnalyticsHelper extends AppHelper {
 		$options += array(
 			'reset' => false
 		);
+		$debug = Configure::read('debug');
 
 		if ($this->_script) {
-			$source = $this->webroot("/js/{$this->_script}.js");
+			$source = $this->_script;
 		} elseif (env('HTTPS')) {
-			$source = 'https://ssl.google-analytics.com/ga.js';
+			$source = 'https://ssl.google-analytics.com/' . ($debug ? 'u/ga_debug.js' : 'ga.js');
 		} else {
-			$source = 'http://www.google-analytics.com/ga.js';
+			$source = 'http://www.google-analytics.com/' . ($debug ? 'u/ga_debug.js' : 'ga.js');
 		 }
 		$loader = <<<JS
   (function() {
@@ -124,7 +158,7 @@ JS;
 		$out[] = '  var _gaq = _gaq || [];';
 
 		foreach ($this->_commands as $command) {
-			$out[] = sprintf('  _gaq.push(%s);', json_encode($command));
+			$out[] = '  ' . $this->_renderCommand($command);
 		}
 
 		$out[] = '';
@@ -139,6 +173,8 @@ JS;
 			return implode("\n", $out);
 		}
 	}
-}
 
-?>
+	protected function _renderCommand($command) {
+		return sprintf('_gaq.push(%s);', json_encode($command));
+	}
+}
