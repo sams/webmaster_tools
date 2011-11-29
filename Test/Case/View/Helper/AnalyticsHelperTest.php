@@ -46,12 +46,15 @@ class AnalyticsHelperTest extends CakeTestCase {
 
 	protected $_online;
 	protected $_backup;
+	protected $_config;
 	protected $_settings;
 
 	public function setUp() {
 		parent::setUp();
 		$this->View = $this->getMock('View', null, array(new TestController()));
 		$this->_online = (boolean) @fsockopen('cakephp.org', 80);
+		$this->_config = Configure::read('WebmasterTools.anayltics');
+		$this->_debug = Configure::read('debug');
 		$this->Analytics = new AnalyticsHelper($this->View);
 	}
 
@@ -76,6 +79,7 @@ class AnalyticsHelperTest extends CakeTestCase {
 			'allowLinker' => true,
 			'allowHash' => true
 		));
+		Configure::write('debug', 0);
 		$result = $this->Analytics->generate();
 		$expected = <<<HTML
 <script type="text/javascript">
@@ -98,6 +102,9 @@ class AnalyticsHelperTest extends CakeTestCase {
 
 </script>
 HTML;
+		Configure::write('debug', $this->_debug);
+		// echo "<code><pre>".h($expected)."</pre></code>";
+		// echo "<code><pre>".h($result)."</pre></code>";
 		$this->assertEqual($expected, $result);
 
 	}
@@ -111,6 +118,7 @@ HTML;
 			'allowLinker' => null,
 			'allowHash' => null
 		));
+		Configure::write('debug', 0);
 		$this->Analytics->anonymizeIp();
 		$result = $this->Analytics->generate();
 		$expected = <<<HTML
@@ -132,6 +140,9 @@ HTML;
 HTML;
 
 		
+		Configure::write('debug', $this->_debug);
+		// echo "<code><pre>".h($expected)."</pre></code>";
+		// echo "<code><pre>".h($result)."</pre></code>";
 		$this->assertEqual($expected, $result);
 
 	}
@@ -145,6 +156,7 @@ HTML;
 			'allowLinker' => null,
 			'allowHash' => null
 		));
+		Configure::write('debug', 0);
 		$this->Analytics->variable('index.php', 'varName2', 'MyThing');
 		$result = $this->Analytics->generate();
 		$expected = <<<HTML
@@ -166,6 +178,9 @@ HTML;
 HTML;
 
 		
+		Configure::write('debug', $this->_debug);
+		// echo "<code><pre>".h($expected)."</pre></code>";
+		// echo "<code><pre>".h($result)."</pre></code>";
 		$this->assertEqual($expected, $result);
 
 	}
@@ -213,6 +228,7 @@ HTML;
 			'allowLinker' => null,
 			'allowHash' => null
 		));
+		Configure::write('debug', 0);
 		$this->Analytics->trackPageview('/pages/about/me');
 		$result = $this->Analytics->generate();
 		$expected = <<<HTML
@@ -234,6 +250,9 @@ HTML;
 HTML;
 
 		
+		Configure::write('debug', $this->_debug);
+		// echo "<code><pre>".h($expected)."</pre></code>";
+		// echo "<code><pre>".h($result)."</pre></code>";
 		$this->assertEqual($expected, $result);
 	}
 
@@ -246,6 +265,7 @@ HTML;
 			'allowLinker' => null,
 			'allowHash' => null
 		));
+		Configure::write('debug', 0);
 		$result = $this->Analytics->generate();
 		$expected = <<<HTML
 <script type="text/javascript">
@@ -265,8 +285,12 @@ HTML;
 HTML;
 
 		
+		Configure::write('debug', $this->_debug);
+		// echo "<code><pre>".h($expected)."</pre></code>";
+		// echo "<code><pre>".h($result)."</pre></code>";
 		$this->assertEqual($expected, $result);
 		
+		Configure::write('debug', 0);
 		$result = $this->Analytics->generate(array(
 			'reset' => false
 		));
@@ -287,7 +311,41 @@ HTML;
 </script>
 HTML;
 
+		Configure::write('debug', $this->_debug);
+		// echo "<code><pre>".h($expected)."</pre></code>";
+		// echo "<code><pre>".h($result)."</pre></code>";		
+		$this->assertEqual($expected, $result);
+
 		
+		Configure::write('debug', $this->_debug);
+		// echo "<code><pre>".h($expected)."</pre></code>";
+		// echo "<code><pre>".h($result)."</pre></code>";
+		$this->assertEqual($expected, $result);
+		
+		Configure::write('debug', 2);
+		$result = $this->Analytics->generate(array(
+			'reset' => false
+		));
+		$expected = <<<HTML
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+
+  (function() {
+    var ga = document.createElement('script');
+    ga.type = 'text/javascript';
+    ga.async = true;
+    ga.src = 'http://www.google-analytics.com/u/ga_debug.js';
+
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+HTML;
+
+		Configure::write('debug', $this->_debug);
+		// echo "<code><pre>".h($expected)."</pre></code>";
+		// echo "<code><pre>".h($result)."</pre></code>";		
 		$this->assertEqual($expected, $result);
 	}
 

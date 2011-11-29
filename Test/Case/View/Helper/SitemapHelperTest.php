@@ -7,18 +7,24 @@ App::uses('ClassRegistry', 'Utility');
 App::uses('SitemapHelper', 'WebmasterTools.View/Helper');
 
 /**
- * TestController class
+ * Sitemap Helper File Test
  *
- * @package       Cake.Test.Case.View.Helper
+ * Copyright (c) 2010 David Persson
+ *
+ * Distributed under the terms of the MIT License.
+ * Redistributions of files must retain the above copyright notice.
+ *
+ * PHP version 5
+ * CakePHP version 1.3
+ *
+ * @package    webmaster_tools
+ * @subpackage webmaster_tools.tests.cases.views.helpers
+ * @copyright  2010 David Persson <davidpersson@gmx.de>
+ * @license    http://www.opensource.org/licenses/mit-license.php The MIT License
+ * @link       http://sitemaps.org/protocol.php
  */
 if(!class_exists('TestController')) {
-class TestController extends Controller {
-
-/**
- * name property
- *
- * @var string 'TheTest'
- */
+	class TestController extends Controller {
 	public $name = 'TheTest';
 
 /**
@@ -116,10 +122,6 @@ HTML;
 
 TXT;
 		$this->assertEqual($expected, $result);
-		
-		
-		
-
 	}
 
 	public function testGenerateXml() {
@@ -139,15 +141,12 @@ TXT;
 			'priority' => 0.4,
 			'section' => 'the section'
 		));
+
 		$Document = new DomDocument();
 		$Document->loadXml($this->Sitemap->generate('xml'));
 		$result = $Document->schemaValidate('http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd');
 
 		$this->assertTrue($result);
-		
-		
-		
-
 	}
 
 	public function testGenerateHtml() {

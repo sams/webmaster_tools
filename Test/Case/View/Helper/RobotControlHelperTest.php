@@ -13,16 +13,22 @@ if (!defined('FULL_BASE_URL')) {
 /**
  * TestController class
  *
- * @package       Cake.Test.Case.View.Helper
+ * Copyright (c) 2010 David Persson
+ *
+ * Distributed under the terms of the MIT License.
+ * Redistributions of files must retain the above copyright notice.
+ *
+ * PHP version 5
+ * CakePHP version 1.3
+ *
+ * @package    webmaster_tools
+ * @subpackage webmaster_tools.tests.cases.views.helpers
+ * @copyright  2010 David Persson <davidpersson@gmx.de>
+ * @license    http://www.opensource.org/licenses/mit-license.php The MIT License
+ * @link       http://sitemaps.org/protocol.php
  */
 if(!class_exists('TestController')) {
-class TestController extends Controller {
-
-/**
- * name property
- *
- * @var string 'TheTest'
- */
+	class TestController extends Controller {
 	public $name = 'TheTest';
 
 /**
@@ -75,15 +81,20 @@ TXT;
 
 	public function testDeny() {
 		$this->RobotControl->deny('/secret/');
+		$this->RobotControl->allow('/css/');
+		$this->RobotControl->allow('/img/');
 
 		$result = $this->RobotControl->generate();
 		$expected = <<<TXT
 User-agent: *
+Allow: /css/
+Allow: /img/
 Disallow: /secret/
 
 TXT;
+		// echo "<code><pre>".h($expected)."</pre></code>";
+		// echo "<code><pre>".h($result)."</pre></code>";	
 		$this->assertEqual($expected, $result);
-
 	}
 
 	public function testSitemap() {
@@ -98,7 +109,6 @@ Sitemap: {$expectedUrl}
 
 TXT;
 		$this->assertEqual($expected, $result);
-
 	}
 
 	public function testCrawlBlocks() {
@@ -156,7 +166,6 @@ TXT;
 	}
 
 	public function testVisitTime() {
-
 		$this->RobotControl->visitTime('13:00', '20:00');
 
 		$result = $this->RobotControl->generate();
@@ -197,11 +206,15 @@ TXT;
 		$resultA = $this->RobotControl->generate();
 		$resultB = $this->RobotControl->generate();
 
+		// echo "<code><pre>".h($resultA)."</pre></code>";
+		// echo "<code><pre>".h($resultB)."</pre></code>";	
 		$this->assertEqual($resultA, $resultB);
 
 		$resultA = $this->RobotControl->generate(array('reset' => true));
 		$resultB = $this->RobotControl->generate();
 
+		// echo "<code><pre>".h($resultA)."</pre></code>";
+		// echo "<code><pre>".h($resultB)."</pre></code>";	
 		$this->assertNotEqual($resultA, $resultB);
 	}
 
