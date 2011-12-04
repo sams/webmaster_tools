@@ -141,7 +141,7 @@ class WebmasterToolsController extends WebmasterToolsAppController {
 	
 	public function robot_control() {
 		if($this->_ext == 'txt') {
-		    $template = APP . 'View' . DS . 'webmaster_tools' . DS . 'txt' . DS . 'robot_control' . '.ctp';
+		    $template = APP . 'View' . DS . 'WebmasterTools' . DS . 'txt' . DS . 'robot_control' . '.ctp';
 		    $template = (file_exists($template)) ? $template : 'txt/robot_control';
 		    $this->render($template, 'ajax');
 		} else {
