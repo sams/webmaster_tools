@@ -8,10 +8,10 @@
  * Redistributions of files must retain the above copyright notice.
  *
  * PHP version 5
- * CakePHP version 1.3
+ * CakePHP version 2.0
  *
- * @package    webmaster_tools
- * @subpackage webmaster_tools.controllers
+ * @package    WebmasterTools
+ * @subpackage WebmasterTools.Controllers
  * @copyright  2010 David Persson <davidpersson@gmx.de>
  * @license    http://www.opensource.org/licenses/mit-license.php The MIT License
  */
@@ -38,7 +38,7 @@ class WebmasterToolsController extends WebmasterToolsAppController {
 			$this->Gate->Auth->allow('sitemap', 'robot_control');
 		}
 
-		if (!empty($this->request->params['ext'])) {
+		if ($this->_ext) {
 			$this->response->type($this->request->params['ext']);
 		}
 	}
@@ -50,8 +50,6 @@ class WebmasterToolsController extends WebmasterToolsAppController {
 	public function sitemap(){
 		$mapData = $mapModels = $tmp = $mapText = array();
 		$mapModels = Configure::read('WebmasterTools.mapModels');
-		
-		//debug($mapModels);
 		
 		$controller = false;
 		
@@ -88,8 +86,6 @@ class WebmasterToolsController extends WebmasterToolsAppController {
 				'images' => array()
 			);
 			
-			//diebug($tmp[$controller]);
-			
 			if(!$this->_ext) {
 				$mapText[$controller]['section'] = (!empty($mapModels[$controller][':section'])) ? $mapModels[$controller][':section'] : null;
 				$mapText[$controller]['description'] = (!empty($mapModels[$controller][':description'])) ? $mapModels[$controller][':description'] : false;
@@ -125,10 +121,10 @@ class WebmasterToolsController extends WebmasterToolsAppController {
 		$this->set(compact('mapData', 'mapText'));
 		    
 		if($this->_ext == 'xml') {
-		Configure::write('debug', 0);
-		    $template = APP . 'View' . DS . 'WebmasterTools' . DS . 'xml' . DS . 'sitemap' . '.ctp';
-		    $template = (file_exists($template)) ? $template : 'xml/sitemap';
-		    return $this->render($template, 'xml/default');
+			Configure::write('debug', 0);
+			$template = APP . 'View' . DS . 'WebmasterTools' . DS . 'xml' . DS . 'sitemap' . '.ctp';
+			$template = (file_exists($template)) ? $template : 'xml/sitemap';
+			return $this->render($template, 'xml/default');
 		}
 		    
 		    
